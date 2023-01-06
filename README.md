@@ -1,6 +1,6 @@
 # Shapeshifter
 Combinação computacional criativa de criaturas 3D
-##Introdução
+## Introdução
 A criatividade humana e a origem das ideias é algo que define a humanidade e a sua constante evolução ao longo dos seus mais de 10.000 anos. Ao longo da sua história múltiplas criaturas fantásticas surgiram nos mais diversos cantos do mundo, desde unicórnios, esfinges, faunos, sereias, dragões, entre muitos outros.
 Esta impressionante habilidade de produzir novas ideias é um processo que, segundo Turner, surge da combinação de ideias já existentes e, curiosamente, todas as criaturas do nosso imaginário são compostas por combinação de diversos animais tal como, o grifo que é parte águia e parte leão ou o fauno que é um ser humano com patas traseiras de cavalo ou cabra.
 No passado tais criaturas surgiam como forma de explicar o até então inexplicável, a mente humana busca incessantemente por conhecimento e o incompreensível é preenchido pela imaginação. O conhecimento rudimentar da natureza e a forte imaginação humana trouxe à vida estes criptídeos que eram difundidos através de histórias, contos de fadas, lendas e, na idade média, bestiários, populares livros ilustrados que procuravam descrever vários animais onde a realidade e a ficção era misturada.
