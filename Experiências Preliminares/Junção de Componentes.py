@@ -44,8 +44,6 @@ def translateVG(obj1, tag1, obj2, tag2):
     new = obj1.location + getMiddle(obj1, tag1) - getMiddle(obj2, tag2)
     obj2.location = new
 # -----------------------------------------------------------------------------
-
-print("--------------------------------------------")
 objs=loadLibraries()
 
 if(len(objs)==2):
