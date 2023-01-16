@@ -12,5 +12,3 @@ Segundo o estudo realizado, o processo combinatório será efetuado através da 
 
 ### Texturização
 <img src="Experiências%20Preliminares/Imagens/texture.png" width="50%">
-<br>
-[Junção de Componentes](https://github.com/gouveiafabio98/Shapeshifter/blob/main/Experi%C3%AAncias%20Preliminares/Scripts/Jun%C3%A7%C3%A3o%20de%20Componentes.py)
