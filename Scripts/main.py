@@ -27,7 +27,7 @@ import library
 
 import bpy
 from random import randint
-from bpy.types import (Panel, Operator, EnumProperty)
+from bpy.types import (Panel)
 from bpy.utils import register_class, unregister_class
 from pathlib import Path
 
@@ -49,66 +49,32 @@ options = [
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
-class ButtonOperator(bpy.types.Operator):
-    bl_idname = "monster.shapeshifter"
-    bl_label = "Button"
+class Button ():
+    def __init__(self, text, icon, action):
+        self.text = text
+        self.icon = icon
+        self.action = action
 
-    action = bpy.props.StringProperty()
-    label = bpy.props.StringProperty()
+    def draw(self, layout):
+        layout.operator(
+            "myaddon." + self.action,
+            text=self.text,
+            icon=self.icon
+        )
 
-    def execute(self, context):
-        getattr(self, self.action)(context)
-        return {'FINISHED'}
-
-    def draw(self, context):
-        layout = self.layout
-        layout.operator(self.bl_idname, text=self.label)
-
-    def generate(self, context):
-        logic.constructor()
-        return {'FINISHED'}
-
-    def addLibrary(self, context):
-        option = context.scene.selected_option
-        object = bpy.context.object
-        library.addLibrary(object, option)
-        return {'FINISHED'}
-
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-# ---------------------------CLASSES PANELS------------------------------------
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-
-class CustomPanel(bpy.types.Panel):
+class Panel(bpy.types.Panel):
+    bl_idname = "OBJECT_PT_panel"
     bl_label = "Shapeshifter"
-    bl_idname = "OBJECT_PT_blender"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
     bl_category = "Shapeshifter"
 
     def draw(self, context):
         layout = self.layout
-        row = layout.row()
-        layout.operator(ButtonOperator.bl_idname, text="Blend", icon="RNA").action = "generate"
-        #row.operator(Generate.bl_idname, text="Blend", icon='RNA') #Calls class Generate
-
-
-class SubPanel(bpy.types.Panel):
-    bl_label = "Add to Library"
-    bl_idname = "OBJECT_PT_subpanel"
-    bl_parent_id = "OBJECT_PT_blender"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = "Shapeshifter"
-    def draw(self, context):
-        layout = self.layout
-
-        layout.prop(context.scene, "selected_option")
-        
-        layout.operator(ButtonOperator.bl_idname, text="Add to Library", icon="NONE").action = "addLibrary"
-
-        #layout.operator("monster.add_to_library", text="Add to Library")
+        button1 = Button("Button 1", "MESH_CUBE", "action1")
+        button2 = Button("Button 2", "MESH_SPHERE", "action2")
+        button1.draw(layout)
+        button2.draw(layout)
 
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -118,22 +84,17 @@ class SubPanel(bpy.types.Panel):
 # -----------------------------------------------------------------------------
 
 _classes = [
-    ButtonOperator,
-    CustomPanel,
-    SubPanel
+    Button,
+    Panel
 ]
     
 def register():
     for cls in _classes:
         register_class(cls)
-    
-    bpy.types.Scene.selected_option = EnumProperty(items=options, name="Options")
 
 def unregister():
     for cls in reversed(_classes):
         unregister_class(cls)
-    
-    del bpy.types.Scene.selected_option
 
 if __name__ == "__main__":
     register()
