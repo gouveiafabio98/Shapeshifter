@@ -15,58 +15,54 @@ bl_info = {
 # ---- LIBRARIES ----
 
 import bpy
-from bpy.types import (Panel, Operator)
+from bpy.types import (Panel, Operator, PropertyGroup)
 from bpy.utils import register_class, unregister_class
 
 import logic
 import library
 
-# ---- BUTTONS ----
+# ---- ACTION BUTTONS ----
 
 class ButtonGenerate(Operator):
     """Generate New Creature"""
     bl_idname = "button.generate"
     bl_label = "Generate New Creature"
-    icon = "RNA"
 
     def execute(self, context):
         logic.constructor()
         return {'FINISHED'}
 
+# ---- MARK ASSET ----
+
 class ButtonMarkAsset(Operator):
     """Mark Current Object as Asset"""
     bl_idname = "button.markasset"
     bl_label = "Mark as Asset"
-    icon = "PLUS"
 
     def execute(self, context):
-        print("NEW ASSET!!!!!")
+        clist = context.scene.enumAssetName
+        object = bpy.context.object
+        
+        if clist.enable_custom_asset_name and clist.new_asset_name != "" and object != None:
+            library.addLibrary(object, clist.new_asset_name)
+        else:
+            print(clist.current_asset_list)
+            print("TO DO")
         return {'FINISHED'}
 
-# ---- INPUT TEXT ----
-
-items = (("Metal", "Metal", ""),
-("Plastic", "Plastic", ""),
-("Glass", "Glass", ""),
-("Shadow", "Shadow", ""),
-)
-
-class InputName(Operator):
-    bl_idname = "input.name"
-    bl_label = "Asset Name"
-    bl_property = "options"
-
-    options: bpy.props.EnumProperty(items = items, name='New Name', default=None)
-
-    @classmethod
-    def poll(cls, context):
-        return context.scene.material  # This prevents executing the operator if we didn't select a material
-
-    def execute(self, context):
-        material = context.scene.material
-        material.name = self.options
-        return {'FINISHED'}
-
+class EnumAssetName(PropertyGroup):
+    enable_custom_asset_name: bpy.props.BoolProperty(name="Custom Asset Name", default=False)
+    new_asset_name: bpy.props.StringProperty(name="New Asset Name", default="")
+    current_asset_list: bpy.props.EnumProperty(
+        name="Current Asset List",
+        description="Choose the asset name identifier",
+        items=(
+            ('OPTION1', "Option 1", ""),
+            ('OPTION2', "Option 2", ""),
+            ('OPTION3', "Option 3", ""),
+        ),
+        default='OPTION1'
+    )
 
 # ---- PANELS ----
 
@@ -80,7 +76,7 @@ class MainPanel(Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.operator(ButtonGenerate.bl_idname)
+        layout.operator(ButtonGenerate.bl_idname, icon = "RNA")
 
 class SubPanel(Panel):
     bl_label = "Add to Library"
@@ -93,13 +89,30 @@ class SubPanel(Panel):
 
     def draw(self, context):
         layout = self.layout
-        layout.prop(context.scene, "material")
-        layout.operator(ButtonMarkAsset.bl_idname)
+        scene = context.scene
+        assetNames = scene.enumAssetName
+
+        row = layout.row()
+        row.prop(assetNames, "enable_custom_asset_name", text="Custom Asset Name")
+        if assetNames.enable_custom_asset_name:
+            row = layout.row()
+            row.prop(assetNames, "new_asset_name", text="New Asset Name")
+            row = layout.row()
+            row.enabled = False
+            row.prop(assetNames, "current_asset_list", text="Current Asset List")
+        else:
+            row = layout.row()
+            row.enabled = False
+            row.prop(assetNames, "new_asset_name", text="New Asset Name")
+            row = layout.row()
+            row.prop(assetNames, "current_asset_list", text="Current Asset List")
+
+        layout.operator(ButtonMarkAsset.bl_idname, icon = "PLUS")
 
 # ---- REGISTER ----
 
 _classes = [
-    InputName,
+    EnumAssetName,
     ButtonGenerate,
     ButtonMarkAsset,
     MainPanel,
@@ -109,10 +122,14 @@ _classes = [
 def register():
     for cls in _classes:
         register_class(cls)
+    
+    bpy.types.Scene.enumAssetName = bpy.props.PointerProperty(type=EnumAssetName)
 
 def unregister():
     for cls in reversed(_classes):
         unregister_class(cls)
+    
+    del bpy.types.Scene.enumAssetName
 
 if __name__ == "__main__":
     register()

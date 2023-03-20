@@ -1,8 +1,4 @@
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-# -------------------------------INFORMAÇÃO------------------------------------
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
+# ---- INFO ----
 
 bl_info = {
     "name": "Shapeshifter",
@@ -16,85 +12,124 @@ bl_info = {
     "category": "",
 }
 
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-# -------------------------------LIBRARIES-------------------------------------
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
+# ---- LIBRARIES ----
+
+import bpy
+from bpy.types import (Panel, Operator, PropertyGroup)
+from bpy.utils import register_class, unregister_class
 
 import logic
 import library
 
-import bpy
-from random import randint
-from bpy.types import (Panel)
-from bpy.utils import register_class, unregister_class
-from pathlib import Path
+# ---- ACTION BUTTONS ----
 
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-# -------------------------------VARIABLES-------------------------------------
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
+class ButtonGenerate(Operator):
+    """Generate New Creature"""
+    bl_idname = "button.generate"
+    bl_label = "Generate New Creature"
 
-options = [
-    ("Option 1", "Option 1", "The first option"),
-    ("Option 2", "Option 2", "The second option"),
-    ("Option 3", "Option 3", "The third option")
-]
+    def execute(self, context):
+        logic.constructor()
+        return {'FINISHED'}
 
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-# ---------------------------CLASSES INPUTS------------------------------------
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
+# ---- MARK ASSET ----
 
-class Button ():
-    def __init__(self, text, icon, action):
-        self.text = text
-        self.icon = icon
-        self.action = action
+class ButtonMarkAsset(Operator):
+    """Mark Current Object as Asset"""
+    bl_idname = "button.markasset"
+    bl_label = "Mark as Asset"
 
-    def draw(self, layout):
-        layout.operator(
-            "myaddon." + self.action,
-            text=self.text,
-            icon=self.icon
-        )
+    def execute(self, context):
+        clist = context.scene.enumAssetName
+        object = bpy.context.object
+        
+        if clist.enable_custom_asset_name and clist.new_asset_name != "" and object != None:
+            library.addLibrary(object, clist.new_asset_name)
+        else:
+            print(clist.current_asset_list)
+            print("TO DO")
+        return {'FINISHED'}
 
-class Panel(bpy.types.Panel):
-    bl_idname = "OBJECT_PT_panel"
+class EnumAssetName(PropertyGroup):
+    enable_custom_asset_name: bpy.props.BoolProperty(name="Custom Asset Name", default=False)
+    new_asset_name: bpy.props.StringProperty(name="New Asset Name", default="")
+    current_asset_list: bpy.props.EnumProperty(
+        name="Current Asset List",
+        description="Choose the asset name identifier",
+        items=(
+            ('OPTION1', "Option 1", ""),
+            ('OPTION2', "Option 2", ""),
+            ('OPTION3', "Option 3", ""),
+        ),
+        default='OPTION1'
+    )
+
+# ---- PANELS ----
+
+class MainPanel(Panel):
     bl_label = "Shapeshifter"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
+    
+    bl_idname = "OBJECT_PT_panel"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
     bl_category = "Shapeshifter"
 
     def draw(self, context):
         layout = self.layout
-        button1 = Button("Button 1", "MESH_CUBE", "action1")
-        button2 = Button("Button 2", "MESH_SPHERE", "action2")
-        button1.draw(layout)
-        button2.draw(layout)
+        layout.operator(ButtonGenerate.bl_idname, icon = "RNA")
 
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-# -----------------------REGISTER AND UNREGISTER-------------------------------
-# ------------------------------CLASSES----------------------------------------
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
+class SubPanel(Panel):
+    bl_label = "Add to Library"
+    
+    bl_idname = "OBJECT_PT_subpanel"
+    bl_parent_id = MainPanel.bl_idname
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "Shapeshifter"
+
+    def draw(self, context):
+        layout = self.layout
+        scene = context.scene
+        assetNames = scene.enumAssetName
+
+        row = layout.row()
+        row.prop(assetNames, "enable_custom_asset_name", text="Custom Asset Name")
+        if assetNames.enable_custom_asset_name:
+            row = layout.row()
+            row.prop(assetNames, "new_asset_name", text="New Asset Name")
+            row = layout.row()
+            row.enabled = False
+            row.prop(assetNames, "current_asset_list", text="Current Asset List")
+        else:
+            row = layout.row()
+            row.enabled = False
+            row.prop(assetNames, "new_asset_name", text="New Asset Name")
+            row = layout.row()
+            row.prop(assetNames, "current_asset_list", text="Current Asset List")
+
+        layout.operator(ButtonMarkAsset.bl_idname, icon = "PLUS")
+
+# ---- REGISTER ----
 
 _classes = [
-    Button,
-    Panel
+    EnumAssetName,
+    ButtonGenerate,
+    ButtonMarkAsset,
+    MainPanel,
+    SubPanel
 ]
     
 def register():
     for cls in _classes:
         register_class(cls)
+    
+    bpy.types.Scene.enumAssetName = bpy.props.PointerProperty(type=EnumAssetName)
 
 def unregister():
     for cls in reversed(_classes):
         unregister_class(cls)
+    
+    del bpy.types.Scene.enumAssetName
 
 if __name__ == "__main__":
     register()
