@@ -30,5 +30,4 @@ def listTags():
             option = (tag.name, tag.name, "")
             if option not in list:
                 list.append(option)
-    
     return list

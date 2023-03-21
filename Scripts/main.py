@@ -29,6 +29,7 @@ class ButtonGenerate(Operator):
     bl_label = "Generate New Creature"
 
     def execute(self, context):
+        print(logic.listTags())
         logic.constructor()
         return {'FINISHED'}
 
@@ -56,7 +57,7 @@ class EnumAssetName(PropertyGroup):
     current_asset_list: bpy.props.EnumProperty(
         name="Current Asset List",
         description="Choose the asset name identifier",
-        items=logic.listTags()
+        items=()
     )
 
 # ---- PANELS ----
@@ -68,6 +69,7 @@ class MainPanel(Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Shapeshifter"
+
 
     def draw(self, context):
         layout = self.layout
