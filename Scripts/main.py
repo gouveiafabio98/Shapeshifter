@@ -56,12 +56,7 @@ class EnumAssetName(PropertyGroup):
     current_asset_list: bpy.props.EnumProperty(
         name="Current Asset List",
         description="Choose the asset name identifier",
-        items=(
-            ('OPTION1', "Option 1", ""),
-            ('OPTION2', "Option 2", ""),
-            ('OPTION3', "Option 3", ""),
-        ),
-        default='OPTION1'
+        items=logic.listTags()
     )
 
 # ---- PANELS ----

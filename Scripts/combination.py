@@ -2,8 +2,7 @@ import bpy
 from random import randint
 import math
 import mathutils
-from mathutils import Matrix, Vector
-from mathutils.geometry import tessellate_polygon
+from mathutils import Vector
 
 # Get the vertices that belong to the vertex group
 def getVG(obj, vgname):
@@ -37,7 +36,6 @@ def getObjRot(obj):
 # Check the object faces who had all the vertices send
 def getVGFaces(obj, vertices):
     polygons = obj.data.polygons
-    #faces = []
     area = 0
     for face in polygons:
         face_in_vertices = True
@@ -47,7 +45,6 @@ def getVGFaces(obj, vertices):
                 break
         if face_in_vertices:
             area+=face.area
-            #faces.append(face)
     return area
 
 def joinVG(obj1, tag1, obj2, tag2):

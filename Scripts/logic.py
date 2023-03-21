@@ -20,3 +20,15 @@ def constructor():
 
 def randomAsset(list, name):
     return random.choice(library.searchTag(list, name))
+
+def listTags():
+    assets = library.loadLibraries()
+    list = [] 
+
+    for asset in assets:
+        for tag in asset.asset_data.tags:
+            option = (tag.name, tag.name, "")
+            if option not in list:
+                list.append(option)
+    
+    return list
