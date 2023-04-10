@@ -15,6 +15,15 @@ bl_info = {
 # ---- LIBRARIES ----
 
 import bpy
+import sys
+import os
+
+current_file_path = bpy.context.space_data.text.filepath
+current_directory = os.path.dirname(current_file_path)
+if current_directory not in sys.path:
+    sys.path.append(current_directory)
+
+
 from bpy.types import (Panel, Operator, PropertyGroup)
 from bpy.utils import register_class, unregister_class
 
@@ -29,7 +38,6 @@ class ButtonGenerate(Operator):
     bl_label = "Generate New Creature"
 
     def execute(self, context):
-        print(logic.listTags())
         logic.constructor()
         return {'FINISHED'}
 
@@ -46,9 +54,9 @@ class ButtonMarkAsset(Operator):
         
         if clist.enable_custom_asset_name and clist.new_asset_name != "" and object != None:
             library.addLibrary(object, clist.new_asset_name)
+            #clist.current_asset_list.items = library.listTags() 
         else:
-            print(clist.current_asset_list)
-            print("TO DO")
+            library.addLibrary(object, clist.current_asset_list)
         return {'FINISHED'}
 
 class EnumAssetName(PropertyGroup):
@@ -57,7 +65,7 @@ class EnumAssetName(PropertyGroup):
     current_asset_list: bpy.props.EnumProperty(
         name="Current Asset List",
         description="Choose the asset name identifier",
-        items=()
+        items=library.listTags()
     )
 
 # ---- PANELS ----
@@ -69,7 +77,6 @@ class MainPanel(Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Shapeshifter"
-
 
     def draw(self, context):
         layout = self.layout

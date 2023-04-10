@@ -1,9 +1,14 @@
+# ---- LIBRARIES ----
+
 import bpy
 from random import randint
 import math
 import mathutils
+from mathutils import Matrix, Vector
+from mathutils.geometry import tessellate_polygon
 from mathutils import Vector
 
+# ---- FUNCTIONS ----
 # Get the vertices that belong to the vertex group
 def getVG(obj, vgname):
     vg = obj.vertex_groups.get(vgname)
@@ -60,7 +65,7 @@ def joinVG(obj1, tag1, obj2, tag2):
     avg2 = getVGFaces(obj2, vg2)
 
     # Calcualte the scale matrix and apply it to obj2 
-    scale = avg2/avg1
+    scale = math.sqrt(avg1/avg2)
     scale_matrix = mathutils.Matrix.Scale(scale, 4)
     obj2.matrix_world = scale_matrix @ obj2.matrix_world
 
@@ -72,6 +77,9 @@ def joinVG(obj1, tag1, obj2, tag2):
     axis = nvg1.cross(nvg2)
 
     # Calculate angle between normals
+    #if nvg1==nvg2:
+        #angle = 0
+    #else:
     angle = math.radians(180) - nvg1.angle(nvg2)
 
     # Calculate rotation matrix and apply it to obj2
