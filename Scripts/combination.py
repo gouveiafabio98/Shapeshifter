@@ -85,15 +85,15 @@ def joinVG(obj1, tag1, obj2, tag2):
     trans_matrix = Matrix.Translation(to_global(vgCentroid(vg1), obj1) - to_global(vgCentroid(vg2), obj2))
     obj2.matrix_world = trans_matrix @ obj2.matrix_world
 
-    # Collapse the faces
-    vertices_collapse(vg1, obj1, vg2, obj2)
-
     # Save texture data
     textures.meshData(obj1, "texture_"+tag1, 0.5, vg1, 1)
     textures.meshData(obj2, "texture_"+tag2, 0.5, vg2, 1)
 
+    # Collapse the faces
+    vertices_collapse(vg1, obj1, vg2, obj2)
+
     # Store the UV Map nearest oposite face inside it to use it later
-    textures.storeUV()
+    #textures.storeUV(obj1, vg1, obj2, vg2, tag1)
 
 def index_distance(first, second, length):
     if first == second:

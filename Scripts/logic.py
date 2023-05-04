@@ -18,19 +18,19 @@ def constructor():
     vgCombine(obj1, tag1, list, None, obj1)
 
 def vgCombine(obj1, tag1, list, usedTag, usedObj):
-    nodeGroups = {} # name (attribute name) -> textura (node group)
-    nodeGroups[tag1] = textures.newNodeGroup(textures.getMaterial(obj1))
+    nodeGroups = []
+    nodeGroups.append({"name": None, "node": textures.newNodeGroup(textures.getMaterial(obj1), tag1), "data": None})
     for vg in obj1.vertex_groups:
         if(vg.name != usedTag):
             tag2 = vg.name
             obj2 = randomAsset(list, tag2)
-            nodeGroups[tag2] = textures.newNodeGroup(textures.getMaterial(obj2))
+            nodeGroups.append({"name": tag2, "node": textures.newNodeGroup(textures.getMaterial(obj2), tag2), "data": None})
 
             bpy.context.collection.objects.link(obj2)
             combination.joinVG(obj1, tag2, obj2, tag1)
             vgCombine(obj2, tag2, list, tag1, obj1)
         else:
-            nodeGroups[usedTag] = textures.newNodeGroup(textures.getMaterial(usedObj))
+            nodeGroups.append({"name": usedTag, "node": textures.newNodeGroup(textures.getMaterial(usedObj), usedTag), "data": None})
     
     newMaterial = textures.createMaterial(nodeGroups, tag1)
     obj1.data.materials.append(newMaterial)
