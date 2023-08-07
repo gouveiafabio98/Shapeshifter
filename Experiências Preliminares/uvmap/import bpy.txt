@@ -1,0 +1,36 @@
+import bpy
+
+# Get the selected object
+obj = bpy.context.active_object
+
+# Check if the selected object is a mesh
+if obj.type == 'MESH':
+    # Get the mesh data
+    mesh = obj.data
+
+    # Get the vertex index
+    vertex_index = 2  # Replace with the desired vertex index
+
+    # Get the active UV layer
+    uv_layer = mesh.uv_layers.active
+    if uv_layer is not None:
+        uv_data = uv_layer.data
+
+        # Iterate over the polygons (faces) of the mesh
+        for face in mesh.polygons:
+            # Iterate over the loop indices of the current face
+            for loop_index in face.loop_indices:
+                loop = mesh.loops[loop_index]
+                vertex = mesh.vertices[loop.vertex_index]
+
+                # Check if the loop's vertex index matches the desired vertex index
+                if vertex.index == vertex_index:
+                    # Update the UV coordinates for the current loop
+                    uv_data[loop_index].uv = (0.5, 0.5)  # Replace with the desired UV coordinate
+
+        # Update the mesh with the modified UV data
+        mesh.update()
+    else:
+        print("No active UV layer found.")
+else:
+    print("Selected object is not a mesh.")

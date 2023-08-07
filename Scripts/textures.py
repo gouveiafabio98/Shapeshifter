@@ -1,5 +1,8 @@
 import bpy
 import bmesh
+from mathutils import Vector
+
+import combination
 
 def meshData(obj, name, value, domain, default):
     mesh = obj.data
@@ -19,7 +22,6 @@ def meshData(obj, name, value, domain, default):
 
 def newNodeGroup(material, name):
     name = "node_"+name+"_"+material.name
-    
     # Get all nodes from material
     nodes = material.node_tree.nodes
     
@@ -64,9 +66,9 @@ def newNodeGroup(material, name):
 
     # Add group output node
     group_input = group.nodes.new("NodeGroupInput")
-    group_output = group.outputs.new("NodeSocketShader", "Shader")
+    group.outputs.new("NodeSocketShader", "Shader")
     output_node = group.nodes.new("NodeGroupOutput")
-    group_output = group.inputs.new("NodeSocketVector", "UV")
+    group.inputs.new("NodeSocketVector", "UV")
     
     for i, inp in enumerate(material_output_node.inputs):
         for link in inp.links:
@@ -108,6 +110,7 @@ def createMaterial(nodes, name):
     for i in range(len(nodes)):
         node = nodes[i]["node"]
         name = nodes[i]["name"]
+        uv_name = nodes[i]["uv"]
         group_node = nodeTree.nodes.new("ShaderNodeGroup")
         group_node.node_tree = node
 
@@ -135,15 +138,126 @@ def createMaterial(nodes, name):
         
         uv_map_node = nodeTree.nodes.new(type="ShaderNodeUVMap")
         nodeTree.links.new(uv_map_node.outputs[0], group_node.inputs[0])
+        uv_map_node.uv_map = uv_name
         uv_map_node.location = (group_node.location.x-200, group_node.location.y+150)
-
+        
     return newMaterial
 
-def storeUV(obj1, vg1, obj2, vg2, tag):
-    obj1.data.uv_layers.new(name=tag)
+def adjacent_faces(obj, main_face):
+    faces = obj.data.polygons
+    main_vertices = main_face.vertices
+    adjacent_faces = []
 
-    uv2 = obj2.data.uv_layers.active.data
+    for face in faces:
+        if face != main_face and any(vertex_index in main_vertices for vertex_index in face.vertices):
+            adjacent_faces.append(face)
 
-    for i, uv_data in enumerate(obj1.data.uv_layers[1].data):
-        uv_data.uv = uv2[i].uv
-    return None
+    return adjacent_faces
+
+def associate_faces(faces1, faces2, pairs):
+    faces_pairs = []
+
+    # Associate faces from faces2 with faces from faces1
+    for face2 in faces2:
+        face_pairs = [pair for pair in pairs if pair[0] in face2.vertices]
+        remaining_v2 = [v for v in face2.vertices if not any(v == v2 for v2, _ in face_pairs)]
+
+        faces_pairs.append({
+            'f1': None,
+            'f2': face2,
+            'pairs': face_pairs,
+            'remaining_v1': [],
+            'remaining_v2': remaining_v2
+        })
+
+    # Associate faces from faces1 with faces from faces2
+    new_faces_pairs = []
+    for face_pair in faces_pairs:
+        best_f1 = None
+        best_remaining_v1 = []
+        best_n = -1
+        for face1 in faces1:
+            if all(vert in face1.vertices for _, vert in face_pair["pairs"]) and len(face_pair["pairs"])>best_n:
+                best_f1 = face1
+                best_remaining_v1 = [v for v in face1.vertices if not any(v == v1 for _, v1 in face_pair["pairs"])]
+                best_n = len(face_pair["pairs"])
+        if best_f1 is not None:
+            face_pair["f1"] = best_f1
+            face_pair["remaining_v1"] = best_remaining_v1
+            new_faces_pairs.append(face_pair)
+
+    faces_pairs = [face_pair for face_pair in new_faces_pairs if face_pair["f1"] is not None]
+
+    return faces_pairs
+
+def associate_vertices(association, obj1, obj2):
+    for assoc in association:
+        list_v1 = assoc["remaining_v1"]
+        list_v2 = assoc["remaining_v2"]
+        greater = 0
+        if len(list_v1) > len(list_v2):
+            greater = 1
+        elif len(list_v1) < len(list_v2):
+            greater = -1
+
+        best = closest_vertex(list_v1, obj1, list_v2, obj2)
+        while best != None:
+            if greater == 1 or greater == 0:
+                list_v1.remove(best['v1'])
+            if greater == -1 or greater == 0:
+                list_v2.remove(best['v2'])
+            assoc["pairs"].append([best['v2'], best['v1']])
+            best = closest_vertex(list_v1, obj1, list_v2, obj2)
+
+    return association
+
+def closest_vertex(list_v1, obj1, list_v2, obj2):
+    best = None
+    best_dist = float("inf")
+    for v1 in list_v1:
+        for v2 in list_v2:
+            v1g = combination.to_global(obj1.data.vertices[v1].co, obj1)
+            v2g = combination.to_global(obj2.data.vertices[v2].co, obj2)
+            dist = (v1g - v2g).length
+            if dist < best_dist:
+                best_dist = dist
+                best = {'v1': v1, 'v2': v2}
+    return best
+
+def storeUV(obj1, face1, obj2, face2, tag, pairs):
+    obj1.data.update()
+    obj2.data.update()
+    # face1 and face2 are the vgFaces
+    # The pairs are the already joined vertices
+
+    print(obj1.name, obj2.name)
+
+    # Get the surrounding faces
+    sf1 = adjacent_faces(obj1, face1)
+    sf2 = adjacent_faces(obj2, face2)
+
+    # Associate each face to another
+    association = associate_faces(sf1, sf2, pairs)
+
+    association = associate_vertices(association, obj1, obj2)
+
+    active_uv1 = obj1.data.uv_layers.active
+    active_uv2 = obj2.data.uv_layers.active
+
+    new_uv1 = obj1.data.uv_layers.new(name=tag)
+    new_uv2 = obj2.data.uv_layers.new(name=tag)
+    
+    for assoc in association:
+        for f1_loop in assoc['f1'].loop_indices:
+            l1 = obj1.data.loops[f1_loop]
+            i1 = l1.vertex_index
+            for f2_loop in assoc['f2'].loop_indices:
+                l2 = obj2.data.loops[f2_loop]
+                i2 = l2.vertex_index
+                if [i2, i1] in assoc['pairs']:
+                    new_uv1.data[l1.index].uv = active_uv2.data[l2.index].uv.copy()
+                    new_uv2.data[l2.index].uv = active_uv1.data[l1.index].uv.copy()
+    
+    obj1.data.update()
+    obj2.data.update()
+import time
