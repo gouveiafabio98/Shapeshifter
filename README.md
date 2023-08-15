@@ -80,7 +80,9 @@ The core functionality of the Shapeshifter addon lies in its ability to generate
 ### Step 1: Accessing the Main Interface
 Open Blender and ensure the Shapeshifter addon is enabled.
 Locate the Shapeshifter panel in the sidebar of the Blender interface.
+
 <img src="manual/shapeshifter_window.png" width="50%"></img>
+
 ### Step 2: Main Generation Area
 In the Shapeshifter panel, focus on the top area where the generation process is represented.
 This area contains:
