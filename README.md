@@ -12,8 +12,7 @@ the boundaries of art and creation.
 ### Introduction
 The Shapeshifter addon is a powerful tool for creating unique and imaginative creatures in Blender. This guide will walk you through the steps to install the Shapeshifter addon, enabling you to combine and recombine different parts to bring your creative visions to life.
 ### Step 1: Download the Shapeshifter Addon
-To begin, download the Shapeshifter addon zip file from the following link:
-https://github.com/gouveiafabio98/Shapeshifter/blob/main/addon/shapeshifter.zip
+Markup : 1. To begin, download the Shapeshifter addon zip file from the following link: https://github.com/gouveiafabio98/Shapeshifter/blob/main/addon/shapeshifter.zip
 ### Step 2: Verify Blender Installation
 Before proceeding, make sure you have Blender installed on your computer.
 For optimal compatibility, it's recommended to use the latest release version of Blender, ideally version 3.6 or higher.
