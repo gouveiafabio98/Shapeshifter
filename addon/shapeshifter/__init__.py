@@ -108,9 +108,6 @@ class ButtonSelectionCut(Operator):
     bl_label = "Selection Cut"
 
     def execute(self, context):
-        #selectvgName = context.scene.VGSelectionNameInput
-        #unselectvgName = context.scene.VGUnselectionNameInput
-
         types_one = context.scene.SelectedCutEnumAssetType
         if types_one.enable_custom_cut_type and types_one.new_cut_type != "":
             type_one = types_one.new_cut_type
@@ -508,15 +505,7 @@ class CutPanel(Panel):
         layout.row().separator()
 
         layout.operator(ButtonSelectionCut.bl_idname, icon="MOD_UVPROJECT")
-        #selectvgname = scene.VGSelectionNameInput
-        #unselectvgname = scene.VGUnselectionNameInput
-        #layout.operator(ButtonSelectionCut.bl_idname, icon="MOD_UVPROJECT")
-        #layout.row().separator()
-        #draw_title_divider(layout, "Vertex Groups Names", "IMGDISPLAY")
-        #row = layout.row()
-        #row.prop(selectvgname, "vg_name")
-        #row = layout.row()
-        #row.prop(unselectvgname, "vg_name")
+        layout.row().separator()
 
 # ---- FUNCTIONS ----
 
@@ -550,8 +539,6 @@ _classes = [
     PromptData,
     AddPromptOperator,
     RemovePromptOperator,
-    VGSelectionNameInput,
-    VGUnselectionNameInput,
     LibraryRefresh
 ]
 
@@ -568,8 +555,6 @@ def register():
     bpy.types.Scene.infoInput = bpy.props.StringProperty(name="Asset Info", default="")
     bpy.types.Scene.SymmetryCheckbox = bpy.props.PointerProperty(type=SymmetryCheckbox)
     bpy.types.Scene.BlendCheckbox = bpy.props.PointerProperty(type=BlendCheckbox)
-    bpy.types.Scene.VGSelectionNameInput = bpy.props.PointerProperty(type=VGSelectionNameInput)
-    bpy.types.Scene.VGUnselectionNameInput = bpy.props.PointerProperty(type=VGUnselectionNameInput)
     bpy.types.Scene.VgRemoveCheckbox = bpy.props.PointerProperty(type=VgRemoveCheckbox)
     bpy.types.Scene.CleanScene = bpy.props.PointerProperty(type=CleanScene)
     bpy.types.Scene.CollapseCheckbox = bpy.props.PointerProperty(type=CollapseCheckbox)
@@ -590,8 +575,6 @@ def unregister():
     del bpy.types.Scene.infoInput
     del bpy.types.Scene.SymmetryCheckbox
     del bpy.types.Scene.BlendCheckbox
-    del bpy.types.Scene.VGSelectionNameInput
-    del bpy.types.Scene.VGUnselectionNameInput
     del bpy.types.Scene.VgRemoveCheckbox
     del bpy.types.Scene.CleanScene
     del bpy.types.Scene.CollapseCheckbox
