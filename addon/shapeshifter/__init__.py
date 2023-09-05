@@ -118,7 +118,7 @@ class ButtonSelectionCut(Operator):
             symmetry_one = symmetrys_one.new_cut_symmetry
         else:
             symmetry_one = symmetrys_one.current_cut_symmetry_list
-        tag_one = f"{type_one}, {symmetry_one}"
+        tag_one = f"{type_one},{symmetry_one}"
 
         types_two = context.scene.UnselectedCutEnumAssetType
         if types_two.enable_custom_cut_type and types_two.new_cut_type != "":
