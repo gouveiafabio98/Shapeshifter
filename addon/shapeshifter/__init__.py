@@ -133,7 +133,7 @@ class ButtonSelectionCut(Operator):
             symmetry_two = symmetrys_two.current_cut_symmetry_list
         tag_two = f"{type_two},{symmetry_two}"
 
-        loopcut.selection_cut(self, tag_one, tag_two)
+        loopcut.selection_cut(self, tag_two, tag_one)
         return {"FINISHED"}
 
 class AddPromptOperator(Operator):
