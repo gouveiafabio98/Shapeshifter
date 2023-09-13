@@ -126,7 +126,7 @@ class ButtonSelectionCut(Operator):
         else:
             type_two = types_two.current_cut_type_list
         
-        symmetrys_two = context.scene.UnselectedCutEnumAssetType
+        symmetrys_two = context.scene.UnselectedCutEnumAssetSymmetry
         if symmetrys_two.enable_custom_cut_symmetry and symmetrys_two.new_cut_symmetry != "":
             symmetry_two = symmetrys_two.new_cut_symmetry
         else:
