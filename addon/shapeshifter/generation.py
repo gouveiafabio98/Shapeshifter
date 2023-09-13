@@ -53,7 +53,7 @@ def assets_evaluation(preprocess, assets):
                     similarity_input_info += word_similarity(input_info, asset_info)
                 similarity_input_info /= len(asset_infos)
                 similarity_info += similarity_input_info
-            if len(input_data['prompt']) > 0:
+            if len(input_data['prompt']) > 0 and similarity_info != 0:
                 similarity_info /= len(input_data['prompt'])
             # Calculate Similarity
             asset_similarity += similarity_type * similarity_info * input_data['threshold']
